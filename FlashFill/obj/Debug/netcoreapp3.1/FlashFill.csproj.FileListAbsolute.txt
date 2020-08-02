@@ -1,0 +1,13 @@
+C:\Users\Grigor\source\repos\FlashFill\FlashFill\bin\Debug\netcoreapp3.1\FlashFill.exe
+C:\Users\Grigor\source\repos\FlashFill\FlashFill\bin\Debug\netcoreapp3.1\FlashFill.deps.json
+C:\Users\Grigor\source\repos\FlashFill\FlashFill\bin\Debug\netcoreapp3.1\FlashFill.runtimeconfig.json
+C:\Users\Grigor\source\repos\FlashFill\FlashFill\bin\Debug\netcoreapp3.1\FlashFill.runtimeconfig.dev.json
+C:\Users\Grigor\source\repos\FlashFill\FlashFill\bin\Debug\netcoreapp3.1\FlashFill.dll
+C:\Users\Grigor\source\repos\FlashFill\FlashFill\bin\Debug\netcoreapp3.1\FlashFill.pdb
+C:\Users\Grigor\source\repos\FlashFill\FlashFill\obj\Debug\netcoreapp3.1\FlashFill.csprojAssemblyReference.cache
+C:\Users\Grigor\source\repos\FlashFill\FlashFill\obj\Debug\netcoreapp3.1\FlashFill.csproj.CoreCompileInputs.cache
+C:\Users\Grigor\source\repos\FlashFill\FlashFill\obj\Debug\netcoreapp3.1\FlashFill.AssemblyInfoInputs.cache
+C:\Users\Grigor\source\repos\FlashFill\FlashFill\obj\Debug\netcoreapp3.1\FlashFill.AssemblyInfo.cs
+C:\Users\Grigor\source\repos\FlashFill\FlashFill\obj\Debug\netcoreapp3.1\FlashFill.dll
+C:\Users\Grigor\source\repos\FlashFill\FlashFill\obj\Debug\netcoreapp3.1\FlashFill.pdb
+C:\Users\Grigor\source\repos\FlashFill\FlashFill\obj\Debug\netcoreapp3.1\FlashFill.genruntimeconfig.cache
