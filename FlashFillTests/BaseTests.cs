@@ -82,24 +82,104 @@ namespace FlashFillTests {
 		}
 
 		[TestMethod]
-		public void Example6() {
-			string v = "        Oege    de    Moor";
-			var ss = new Concatenate(new List<AtomicExpression> {
-				new Loop((int w) => {
-					return new Concatenate(new List<AtomicExpression> { new SubStr(v,
-						new Pos(Tokens.Epsilon, Tokens.NonWhiteSpaceTok, w),
-						new Pos(Tokens.NonWhiteSpaceTok, Tokens.TokenSeq(Tokens.WhiteSpaceTok, Tokens.NonWhiteSpaceTok), w)),
-						new ConstStr(" ")
-					});
-				}),
-				new SubStr2(v, Tokens.NonWhiteSpaceTok, -1)
+		public void Example4() {
+			string v = "";
+			Loop e4 = new Loop((int w) => {
+				return new Concatenate(new List<AtomicExpression> { new SubStr2(v, Tokens.UpperTok, w) });
 			});
-			Assert.AreEqual("Oege de Moor", ss.Eval(v));
+
+			Assert.AreEqual("IBM", e4.Eval("International Business Machines"));
+			Assert.AreEqual("POPL", e4.Eval("Principles Of Programming Languages"));
+			Assert.AreEqual("ICSE", e4.Eval("International Conference on Software Engineering"));
+		}
+
+		[TestMethod]
+		public void Example5() {
+			Func<string, string> e5 = (string v1) => {
+				return new Loop((int w) => {
+					return new Concatenate(new List<AtomicExpression> {
+						new SubStr(v1, new Pos(Tokens.LeftParenTok, Tokens.TokenSeq(Tokens.NumTok, Tokens.SlashTok), w),
+							new Pos(Tokens.TokenSeq(Tokens.SlashTok, Tokens.NumTok), Tokens.RightParenTok, w)),
+						new ConstStr("#")
+					});
+				}).Eval(v1);
+			};
+
+			Assert.AreEqual("6/7#4/5#14/1#", e5("(6/7)(4/5)(14/1)"));
+			Assert.AreEqual("28/11#14/1#", e5("49(28/11)(14/1)"));
+			Assert.AreEqual("28/11#14/1#", e5("()(28/11)(14/1)"));
+		}
+
+		[TestMethod]
+		public void Example6() {
+			Func<string, string> e6 = (string v) => {
+				return new Concatenate(new List<AtomicExpression> {
+					new Loop((int w) => {
+						return new Concatenate(new List<AtomicExpression> { new SubStr(v,
+							new Pos(Tokens.Epsilon, Tokens.NonWhiteSpaceTok, w),
+							new Pos(Tokens.NonWhiteSpaceTok, Tokens.TokenSeq(Tokens.WhiteSpaceTok, Tokens.NonWhiteSpaceTok), w)),
+							new ConstStr(" ")
+						});
+					}),
+					new SubStr2(v, Tokens.NonWhiteSpaceTok, -1)
+				}).Eval(v);
+			};
+
+			Assert.AreEqual("Oege de Moor", e6("     Oege   de       Moor"));
+			Assert.AreEqual("Kathleen Fisher AT&T Labs", e6("Kathleen   Fisher   AT&T Labs"));
+		}
+
+		[TestMethod]
+		public void Example7() {
+			Func<string, string, string> e7 = (string v1, string v2) => {
+				Conjunct b1 = new Conjunct(new List<FlashFill.Match> {
+					new FlashFill.Match(v1, Tokens.CharTok), new FlashFill.Match(v2, Tokens.CharTok)
+				});
+				Concatenate e1 = new Concatenate(new List<AtomicExpression> {
+					new ConstStr(v1), new ConstStr("("), new ConstStr(v2), new ConstStr(")")
+				});
+				Disjunct b2 = new Disjunct(new List<FlashFill.Match> {
+					new FlashFill.NotMatch(v1, Tokens.CharTok), new FlashFill.NotMatch(v2, Tokens.CharTok)
+				});
+
+				return new Switch(new List<Tuple<Conditional, TraceExpression>> {
+					Tuple.Create<Conditional, TraceExpression>(b1, e1),
+					Tuple.Create<Conditional, TraceExpression>(b2, new Epsilon())
+				}).Eval();
+			};
+
+			Assert.AreEqual("Alex(Asst.)", e7("Alex", "Asst."));
+			Assert.AreEqual("Jim(Manager)", e7("Jim", "Manager"));
+			Assert.AreEqual(null, e7("Ryan", null));
+			Assert.AreEqual(null, e7(null, "Asst."));
+		}
+
+		[TestMethod]
+		public void Example8() {
+			Func<string, string> e8 = (string v1) => {
+				Conditional b1 = new FlashFill.Match(v1, Tokens.SlashTok);
+				Conditional b2 = new FlashFill.Match(v1, Tokens.DotTok);
+				Conditional b3 = new FlashFill.Match(v1, Tokens.HyphenTok);
+
+				SubStr e1 = new SubStr(v1, new Pos(Tokens.StartTok, Tokens.Epsilon, 1), new Pos(Tokens.Epsilon, Tokens.SlashTok, 1));
+				SubStr e2 = new SubStr(v1, new Pos(Tokens.DotTok, Tokens.Epsilon, 1), new Pos(Tokens.Epsilon, Tokens.DotTok, 2));
+				SubStr e3 = new SubStr(v1, new Pos(Tokens.HyphenTok, Tokens.Epsilon, 2), new Pos(Tokens.EndTok, Tokens.Epsilon, 1));
+
+				return new Switch(new List<Tuple<Conditional, TraceExpression>> {
+					Tuple.Create<Conditional, TraceExpression>(b1, e1),
+					Tuple.Create<Conditional, TraceExpression>(b2, e2),
+					Tuple.Create<Conditional, TraceExpression>(b3, e3)
+				}).Eval();
+			};
+
+			Assert.AreEqual("01", e8("01/21/2001"));
+			Assert.AreEqual("02", e8("22.02.2002"));
+			Assert.AreEqual("03", e8("2003-23-03"));
 		}
 
 		[TestMethod]
 		public void Example9() {
-			string v = "Prof. Kathleen S. Fisher";
+			string v = "";
 			SubStr firstname = new SubStr(v, new Pos(Tokens.Epsilon, Tokens.NonTokenSeq(Tokens.AlphTok, Tokens.Non(Tokens.DotTok)), 1),
 				new Pos(Tokens.Epsilon, Tokens.NonTokenSeq(Tokens.LowerTok, Tokens.Non(Tokens.DotTok)), 1));
 			Concatenate e1 = new Concatenate(new List<AtomicExpression> {

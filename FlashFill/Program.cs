@@ -18,10 +18,16 @@ namespace FlashFill {
 		public static Regex AlphNumTok = new Regex(@"[a-zA-Z0-9]+");
 		public static Regex WhiteSpaceTok = new Regex(@"\s+");
 		public static Regex CommaTok = new Regex(@",+");
-		public static Regex SlashTok = new Regex(@"\\+");
+		public static Regex SlashTok = new Regex(@"(\\|/)+");
+		public static Regex HyphenTok = new Regex(@"-+");
+		public static Regex LeftParenTok = new Regex(@"\(+");
+		public static Regex RightParenTok = new Regex(@"\)+");
 		public static Regex AnyTok = new Regex(@".+");
+		public static Regex CharTok = new Regex(@"\w+");
 		public static Regex Epsilon = new Regex(@"");
 		public static Regex NonWhiteSpaceTok = new Regex(@"\S+");
+		public static Regex StartTok = new Regex(@"\A");
+		public static Regex EndTok = new Regex(@"\Z");
 		// "[^\.]+"
 
 		// Extra
@@ -56,10 +62,10 @@ namespace FlashFill {
 		public abstract string Eval();
 	}
 
-	public abstract class AtomicExpression {
-		public abstract string Eval(string s);
+	public abstract class AtomicExpression : TraceExpression {
+		public override abstract string Eval(string s);
 
-		public abstract string Eval();
+		public override abstract string Eval();
 	}
 
 	public abstract class Conditional {
@@ -241,12 +247,86 @@ namespace FlashFill {
 			this.v_i = v_i; this.r = r; this.k = k;
 		}
 
+		public Match(string v_i, Regex r) {
+			this.v_i = v_i; this.r = r; this.k = 1;
+		}
+
 		public override bool Eval() {
+			if (v_i == null)
+				return false;
 			return r.Matches(v_i).Count >= k;
 		}
 
 		public override bool Eval(string v) {
+			if (v == null)
+				return false;
 			return r.Matches(v).Count >= k;
+		}
+	}
+
+	public class NotMatch : Match {
+		public NotMatch(string v_i, Regex r, int k) : base(v_i, r, k) {
+			;
+		}
+
+		public NotMatch(string v_i, Regex r) : base(v_i, r) {
+			;
+		}
+
+		public override bool Eval() {
+			return !base.Eval();
+		}
+
+		public override bool Eval(string v) {
+			return !base.Eval(v);
+		}
+	}
+
+	public class Conjunct : Conditional {
+		List<Match> matches;
+
+		public Conjunct(List<Match> matches) {
+			this.matches = matches;
+		}
+
+		public override bool Eval() {
+			foreach (Match m in matches) {
+				if (!m.Eval())
+					return false;
+			}
+			return true;
+		}
+
+		public override bool Eval(string v) {
+			foreach (Match m in matches) {
+				if (!m.Eval(v))
+					return false;
+			}
+			return true;
+		}
+	}
+
+	public class Disjunct : Conditional {
+		List<Match> matches;
+
+		public Disjunct(List<Match> matches) {
+			this.matches = matches;
+		}
+
+		public override bool Eval() {
+			foreach (Match m in matches) {
+				if (m.Eval())
+					return true;
+			}
+			return false;
+		}
+
+		public override bool Eval(string v) {
+			foreach (Match m in matches) {
+				if (m.Eval(v))
+					return true;
+			}
+			return false;
 		}
 	}
 
@@ -301,6 +381,16 @@ namespace FlashFill {
 				stringBuilder.Append(t);
 			}
 			return stringBuilder.ToString();
+		}
+	}
+
+	public class Epsilon : TraceExpression {
+		public override string Eval(string s) {
+			return null;
+		}
+
+		public override string Eval() {
+			return null;
 		}
 	}
 
