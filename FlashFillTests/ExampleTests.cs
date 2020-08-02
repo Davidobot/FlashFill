@@ -10,7 +10,7 @@ using System.Text;
 
 namespace FlashFillTests {
 	[TestClass]
-	public class BaseTests {
+	public class ExampleTests {
 		// https://github.com/MikaelMayer/StringSolver/blob/master/src/test/scala/ch/epfl/lara/synthesis/stringsolver/BaseTests.scala#L63
 		[TestMethod]
 		public void SubStrTest() {
@@ -200,6 +200,36 @@ namespace FlashFillTests {
 			Assert.AreEqual("Gates, B.", swi.Eval("Bill Gates, Sr."));
 			Assert.AreEqual("Necula, G.", swi.Eval("George Ciprian Necula"));
 			Assert.AreEqual("McMillan, K.", swi.Eval("Ken McMillan, II"));
+		}
+
+		[TestMethod]
+		public void Example10() {
+			Func<string, string> e10 = (string v1) => {
+				Conditional b1 = new FlashFill.Match(v1, Tokens.NumTok, 3);
+				Conditional b2 = new NotMatch(v1, Tokens.NumTok, 3);
+
+				Concatenate e1 = new Concatenate(new List<AtomicExpression> {
+					new SubStr2(v1, Tokens.NumTok, 1), new ConstStr("-"),
+					new SubStr2(v1, Tokens.NumTok, 2), new ConstStr("-"),
+					new SubStr2(v1, Tokens.NumTok, 3)
+				});
+				Concatenate e2 = new Concatenate(new List<AtomicExpression> {
+					new ConstStr("425-"),
+					new SubStr2(v1, Tokens.NumTok, 1), new ConstStr("-"),
+					new SubStr2(v1, Tokens.NumTok, 2)
+				});
+
+				return new Switch(new List<Tuple<Conditional, TraceExpression>> {
+					Tuple.Create<Conditional, TraceExpression>(b1, e1),
+					Tuple.Create<Conditional, TraceExpression>(b2, e2)
+				}).Eval();
+			};
+
+			Assert.AreEqual("323-708-7700", e10("323-708-7700"));
+			Assert.AreEqual("425-706-7709", e10("(425)-706-7709"));
+			Assert.AreEqual("510-220-5586", e10("510.220.5586"));
+			Assert.AreEqual("425-235-7654", e10("235 7654"));
+			Assert.AreEqual("425-745-8139", e10("745-8139"));
 		}
 
 		[TestMethod]
